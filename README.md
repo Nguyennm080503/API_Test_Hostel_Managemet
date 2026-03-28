@@ -1,16 +1,16 @@
 # API_Test_Hostel_Managemet (Postman)
 
 ## Overview
-This project contains Postman collections for testing APIs of an ERP system (Odoo-based).
+This project contains Postman collections for testing APIs of hostel management system.
 
 ## Scope
 - Authentication APIs
-- Product APIs
-- Order APIs
+- Account APIs
+- Hostel APIs
 
 ## Tools
 - Postman
-- Newman (optional)
+
 
 ## How to run
 1. Import collection & environment into Postman
