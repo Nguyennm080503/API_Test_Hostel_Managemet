@@ -1,0 +1,129 @@
+$kind: http-request
+url: "{{base_url}}/api/hostels/customer/delete/hostel"
+method: DELETE
+queryParams:
+  - key: hostelId
+    value: null
+    disabled: true
+auth:
+  type: bearer
+  credentials:
+    token: "{{user_token}}"
+scripts:
+  - type: afterResponse
+    code: "let responseText = pm.response.text();\r
+
+      \r
+
+      let response = null;\r
+
+      try {\r
+
+      \    response = pm.response.json();\r
+
+      } catch (e) {\r
+
+      \    response = responseText;\r
+
+      }\r
+
+      \r
+
+      // 1. Delete hostel successfully\r
+
+      pm.test(\"Delete hostel successfully\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      })\r
+
+      \r
+
+      // 2. Check hostel name does not exists\r
+
+      pm.test(\"Hostel name does not exists\", function () {\r
+
+      \    pm.expect(response).to.eql(\"ID does not exists\");\r
+
+      })\r
+
+      \r
+
+      // 3. Response time < 2000ms\r
+
+      pm.test(\"Response time is less than 2000ms\", function () {\r
+
+      \    pm.expect(pm.response.responseTime).to.be.below(2000);\r
+
+      });\r
+
+      \r
+
+      // 4. Verify hostel delete\r
+
+      let requestBody = {};\r
+
+      \r
+
+      try {\r
+
+      \    let hostel_id = pm.request.url.query.get(\"hostelId\");\r
+
+      \    pm.environment.set(\"hostel_id\", hostel_id);\r
+
+      } catch (e) {\r
+
+      \    console.log(e);\r
+
+      }\r
+
+      \r
+
+      pm.sendRequest({\r
+
+      \    url: pm.globals.get(\"base_url\") + \"/api/hostels/customer/all\",\r
+
+      \    method: \"GET\",\r
+
+      \    header: {\r
+
+      \        \"Authorization\": \"Bearer \" + pm.globals.get(\"user_token\")\r
+
+      \    }\r
+
+      }, function (err, res) {\r
+
+      \r
+
+      \    if (err) {\r
+
+      \        console.log(err);\r
+
+      \        return new Error(err.message);\r
+
+      \    }\r
+
+      \r
+
+      \    let data = res.json();\r
+
+      \r
+
+      \r
+
+      \    let found = data.find(h => h.hostelID ==
+      pm.environment.get(\"hostel_id\"));\r
+
+      \r
+
+      \    pm.test(\"Verify deleted hostel\", function () {\r
+
+      \        pm.expect(found).to.be.undefined;\r
+
+      \    });\r
+
+      \r
+
+      });"
+    language: text/javascript
+order: 4000

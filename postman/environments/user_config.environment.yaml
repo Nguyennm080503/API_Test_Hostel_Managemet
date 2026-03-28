@@ -1,0 +1,9 @@
+name: user_config
+values:
+  - key: user_id
+    value: ""
+    enabled: true
+  - key: role
+    value: ""
+    enabled: true
+color: null

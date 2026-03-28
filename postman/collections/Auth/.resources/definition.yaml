@@ -1,0 +1,57 @@
+$kind: collection
+description: >-
+  ## Auth
+
+
+  This collection handles **authentication** for the Hostel Management API. It
+  provides the entry point for verifying user identity and obtaining the
+  credentials required to access protected endpoints across the system.
+
+
+  ---
+
+
+  ### What's included
+
+
+  | Request | Method | Endpoint |
+
+  | --- | --- | --- |
+
+  | Login | `POST` | `/api/accounts/auth/login` |
+
+
+  ---
+
+
+  ### How it works
+
+
+  Send a `POST` request to the login endpoint with a valid **email** and
+  **password**. On success, the API returns:
+
+
+  - A **JWT token** — automatically saved to the `user_token` global variable
+  for use in subsequent requests.
+      
+  - The **account ID** — saved to the `user_id` environment variable.
+      
+  - The **role** — saved to the `role` environment variable (`0` = Admin, `1` =
+  Staff, `2` = Member).
+      
+
+  These variables are then picked up automatically by other collections in the
+  workspace (such as **Account**), so you only need to log in once before
+  running any other requests.
+
+
+  ---
+
+
+  ### Prerequisites
+
+
+  - Set the `base_url` global variable to your API's base URL before running
+  requests.
+      
+  - Use the `user_config` environment to manage user-specific variables.

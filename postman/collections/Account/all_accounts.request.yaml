@@ -1,0 +1,94 @@
+$kind: http-request
+url: "{{base_url}}/api/accounts/all"
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{user_token}}"
+scripts:
+  - type: afterResponse
+    code: "let jsonData = pm.response.json();\r
+
+      \r
+
+      // 1. Status code = 200\r
+
+      pm.test(\"Return status code 200\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      // 2. Response time < 2000ms\r
+
+      pm.test(\"Response time is less than 2000ms\", function () {\r
+
+      \    pm.expect(pm.response.responseTime).to.be.below(2000);\r
+
+      });\r
+
+      \r
+
+      \r
+
+      // 3. Check user is forbidden when not authorized.\r
+
+      pm.test(\"User is forbidden\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(403);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User is not forbidden\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      \r
+
+      // 4. Check unautorized response when no token is provided.\r
+
+      pm.test(\"Unauthorized when no token\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(401);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User has token\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      // 5. Check list accounts has more than a account\r
+
+      pm.test(\"Check list accounts has more than a account\", function () {\r
+
+      \    pm.expect(jsonData.length).to.be.above(1);\r
+
+      })\r
+
+      \r
+
+      // 6. Sever error\r
+
+      pm.test(\"Internal server error\", function () {\r
+
+      \    pm.response.to.have.status(500);\r
+
+      });\r
+
+      \r\n"
+    language: text/javascript
+order: 1000

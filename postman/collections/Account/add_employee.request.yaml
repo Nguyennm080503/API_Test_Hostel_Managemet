@@ -1,0 +1,268 @@
+$kind: http-request
+description: >-
+  ## Overview
+
+
+  This endpoint creates a new employee account in the hostel management system.
+  It validates all required fields before creating the account and returns
+  appropriate error messages for missing or invalid data.
+
+
+  ## Authentication
+
+
+  Requires a **Bearer Token**. Set the token in the `{{user_token}}` variable.
+
+
+  ## Request Body
+
+
+  Send a JSON object with the following fields:
+
+
+  | Field | Type | Required | Description |
+
+  | --- | --- | --- | --- |
+
+  | `name` | string | ✅ Yes | Full name of the employee |
+
+  | `email` | string | ✅ Yes | Email address (must be a valid email format) |
+
+  | `phone` | string | ✅ Yes | Phone number |
+
+  | `gender` | integer | ✅ Yes | Gender of the employee |
+
+  | `address` | string | ✅ Yes | Residential address |
+
+  | `citizen_id` | string | ✅ Yes | Citizen ID / National ID card number |
+
+
+  ## Response Codes
+
+
+  | Status Code | Description |
+
+  | --- | --- |
+
+  | `200` | Employee created successfully |
+
+  | `400` | Validation error (e.g., missing or invalid fields) |
+
+  | `401` | Unauthorized — no token provided |
+
+  | `403` | Forbidden — insufficient permissions |
+
+  | `500` | Internal server error |
+
+
+  ## Validation Rules
+
+
+  The API returns the following messages when fields are missing or invalid:
+
+
+  - **Missing name** → `"Vui lòng nhập tên !"`
+      
+  - **Missing email** → `"Vui lòng nhập email !"`
+      
+  - **Invalid email format** → `"Format email không đúng !"`
+      
+  - **Email already exists** → `"Email đã tồn tại !"`
+      
+  - **Missing phone** → `"Vui lòng nhập số điện thoại !"`
+      
+  - **Missing gender** → `"Vui lòng nhập giới tính !"`
+      
+  - **Missing address** → `"Vui lòng nhập địa chỉ !"`
+      
+  - **Missing citizen ID** → `"Vui lòng nhập căn cước công dân !"`
+url: "{{base_url}}/api/accounts/add/employees"
+method: POST
+body:
+  type: json
+  content: ""
+auth:
+  type: bearer
+  credentials:
+    token: "{{user_token}}"
+scripts:
+  - type: afterResponse
+    code: "let responseText = pm.response.text();\r
+
+      \r
+
+      let response = null;\r
+
+      try {\r
+
+      \    response = pm.response.json();\r
+
+      } catch (e) {\r
+
+      \    response = responseText;\r
+
+      }\r
+
+      \r
+
+      // 1. Create user successfully\r
+
+      pm.test(\"Create user successfully\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      })\r
+
+      \r
+
+      // 2. Check email existed \r
+
+      pm.test(\"Email is existed\", function () {\r
+
+      \    pm.expect(response).to.eql(\"Email đã tồn tại !\");\r
+
+      })\r
+
+      \r
+
+      // 3. Response time < 2000ms\r
+
+      pm.test(\"Response time is less than 2000ms\", function () {\r
+
+      \    pm.expect(pm.response.responseTime).to.be.below(2000);\r
+
+      });\r
+
+      \r
+
+      \r
+
+      // 4. Check user is forbidden when not authorized.\r
+
+      pm.test(\"User is forbidden\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(403);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User is not forbidden\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      \r
+
+      // 5. Check unautorized response when no token is provided.\r
+
+      pm.test(\"Unauthorized when no token\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(401);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User has token\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      // 6. Create new employee fail\r
+
+      pm.test(\"Create new employee fail\", function () {\r
+
+      \    pm.response.to.have.status(400);\r
+
+      })\r
+
+      \r
+
+      // 7. Check validate name\r
+
+      pm.test(\"Check validate name\", function () {\r
+
+      \    pm.expect(response).to.eql(\"Vui lòng nhập tên !\");\r
+
+      })\r
+
+      \r
+
+      // 8. Check validate email\r
+
+      pm.test(\"Check validate email\", function () {\r
+
+      \    pm.expect(response).to.eql(\"Vui lòng nhập email !\");\r
+
+      })\r
+
+      \r
+
+      // 9. Check validate format email \r
+
+      pm.test(\"Check validate format email\", function () {\r
+
+      \    pm.expect(response).to.eql(\"Format email không đúng !\");\r
+
+      })\r
+
+      \r
+
+      // 10. Check validate phone\r
+
+      pm.test(\"Check validate phone\", function () {\r
+
+      \    pm.expect(response).to.eql(\"Vui lòng nhập số điện thoại !\");\r
+
+      })\r
+
+      \r
+
+      // 11. Check validate gender\r
+
+      pm.test(\"Check validate gender\", function () {\r
+
+      \    pm.expect(response).to.eql(\"Vui lòng nhập giới tính !\");\r
+
+      })\r
+
+      \r
+
+      // 12. Check validate address\r
+
+      pm.test(\"Check validate address\", function () {\r
+
+      \    pm.expect(response).to.eql(\"Vui lòng nhập địa chỉ !\");\r
+
+      })\r
+
+      \r
+
+      // 13. Check validate citizen\r
+
+      pm.test(\"Check validate citizen\", function () {\r
+
+      \    pm.expect(response).to.eql(\"Vui lòng nhập căn cước công dân
+      !\");\r
+
+      })\r
+
+      \r
+
+      // 14. Sever error\r
+
+      pm.test(\"Internal server error\", function () {\r
+
+      \    pm.response.to.have.status(500);\r
+
+      });"
+    language: text/javascript
+examples: ./.resources/add_employee.resources/examples
+order: 2000

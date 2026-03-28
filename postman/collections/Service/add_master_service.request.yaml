@@ -1,0 +1,128 @@
+$kind: http-request
+url: "{{base_url}}/api/services/add/service"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"serviceName\": \"string\"\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{user_token}}"
+scripts:
+  - type: afterResponse
+    code: "let jsonData = pm.response.json();\r
+
+      \r
+
+      // 1. Status code = 200\r
+
+      pm.test(\"Return status code 200\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      // 2. Response time < 2000ms\r
+
+      pm.test(\"Response time is less than 2000ms\", function () {\r
+
+      \    pm.expect(pm.response.responseTime).to.be.below(2000);\r
+
+      });\r
+
+      \r
+
+      // 3. Check service name existed \r
+
+      pm.test(\"Service name is existed\", function () {\r
+
+      \    pm.expect(response).to.eql(\"Dịch vụ đã tồn tại !\");\r
+
+      })\r
+
+      \r
+
+      // 4. Verify service created\r
+
+      let requestBody = {};\r
+
+      \r
+
+      try {\r
+
+      \    let service_name = JSON.parse(pm.request.body.raw.serviceName);\r
+
+      \    pm.environment.set(\"service_name\", service_name);\r
+
+      } catch (e) {\r
+
+      \    console.log(e);\r
+
+      }\r
+
+      \r
+
+      pm.sendRequest({\r
+
+      \    url: pm.globals.get(\"base_url\") + \"/api/services/all\",\r
+
+      \    method: \"GET\",\r
+
+      \    header: {\r
+
+      \        \"Authorization\": \"Bearer \" + pm.globals.get(\"user_token\")\r
+
+      \    }\r
+
+      }, function (err, res) {\r
+
+      \r
+
+      \    if (err) {\r
+
+      \        console.log(err);\r
+
+      \        return new Error(err.message);\r
+
+      \    }\r
+
+      \r
+
+      \    let data = res.json();\r
+
+      \r
+
+      \r
+
+      \    let found = data.find(h => h.service_name ==
+      pm.environment.get(\"service_name\"));\r
+
+      \r
+
+      \    pm.test(\"Verify created hostel\", function () {\r
+
+      \        pm.expect(found).to.not.be.undefined;\r
+
+      \    });\r
+
+      \r
+
+      });\r
+
+      \r
+
+      \r
+
+      \r
+
+      \r
+
+      \r\n"
+    language: text/javascript
+order: 2000

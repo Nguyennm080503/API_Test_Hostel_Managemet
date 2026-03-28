@@ -1,0 +1,178 @@
+$kind: http-request
+url: "{{base_url}}/api/hostels/customer/add/hostel"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"hostelName\": \"string\",\r
+
+    \  \"hostelType\": 0,\r
+
+    \  \"hostelAddress\": \"string\",\r
+
+    \  \"hostelRooms\": 0,\r
+
+    \  \"hostelPrice\": 0\r
+
+    }"
+scripts:
+  - type: afterResponse
+    code: "let responseText = pm.response.text();\r
+
+      \r
+
+      let response = null;\r
+
+      try {\r
+
+      \    response = pm.response.json();\r
+
+      } catch (e) {\r
+
+      \    response = responseText;\r
+
+      }\r
+
+      \r
+
+      // 1. Create hostel successfully\r
+
+      pm.test(\"Create hostel successfully\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      })\r
+
+      \r
+
+      // 2. Check hostel name existed \r
+
+      pm.test(\"Hostel name is existed\", function () {\r
+
+      \    pm.expect(response).to.eql(\"Nhà này đã tồn tại !\");\r
+
+      })\r
+
+      \r
+
+      // 3. Response time < 2000ms\r
+
+      pm.test(\"Response time is less than 2000ms\", function () {\r
+
+      \    pm.expect(pm.response.responseTime).to.be.below(2000);\r
+
+      });\r
+
+      \r
+
+      \r
+
+      // 4. Check user is forbidden when not authorized.\r
+
+      pm.test(\"User is forbidden\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(403);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User is not forbidden\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      \r
+
+      // 5. Check unautorized response when no token is provided.\r
+
+      pm.test(\"Unauthorized when no token\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(401);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User has token\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      // 6. Create new hostel fail\r
+
+      pm.test(\"Create new hostel fail\", function () {\r
+
+      \    pm.response.to.have.status(400);\r
+
+      })\r
+
+      \r
+
+      // 7. Check validate hostel name\r
+
+      pm.test(\"Check validate hostel name\", function () {\r
+
+      \    pm.expect(response).to.eql(\"Vui lòng nhập tên nhà !\");\r
+
+      })\r
+
+      \r
+
+      // 8. Check validate type of hostel\r
+
+      pm.test(\"Check validate type of hostel\", function () {\r
+
+      \    pm.expect(response).to.eql(\"Vui lòng chọn loại nhà thuê !\");\r
+
+      })\r
+
+      \r
+
+      // 9. Check existed type of hostel\r
+
+      pm.test(\"Check type of hostel existed\", function () {\r
+
+      \    pm.expect(response).to.include(\"type of hostel existed\");\r
+
+      })\r
+
+      \r
+
+      // 10. Check validate hostel address\r
+
+      pm.test(\"Check validate hostel address\", function () {\r
+
+      \    pm.expect(response).to.eql(\"Vui lòng nhập địa chỉ nhà !\");\r
+
+      })\r
+
+      \r
+
+      // 11. Check validate rooms of hostel\r
+
+      pm.test(\"Check validate rooms of hostel\", function () {\r
+
+      \    pm.expect(response).to.eql(\"Vui lòng nhập số phòng của nhà
+      !\");\r
+
+      })\r
+
+      \r
+
+      // 1ư. Sever error\r
+
+      pm.test(\"Internal server error\", function () {\r
+
+      \    pm.response.to.have.status(500);\r
+
+      });"
+    language: text/javascript
+order: 2000

@@ -1,0 +1,32 @@
+$kind: http-request
+url: "{{base_url}}/api/services/all"
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{user_token}}"
+scripts:
+  - type: afterResponse
+    code: "let jsonData = pm.response.json();\r
+
+      \r
+
+      // 1. Status code = 200\r
+
+      pm.test(\"Return status code 200\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      // 2. Response time < 2000ms\r
+
+      pm.test(\"Response time is less than 2000ms\", function () {\r
+
+      \    pm.expect(pm.response.responseTime).to.be.below(2000);\r
+
+      });"
+    language: text/javascript
+order: 1000

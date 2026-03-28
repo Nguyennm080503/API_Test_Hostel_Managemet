@@ -1,0 +1,218 @@
+$kind: http-request
+url: "{{base_url}}/api/hostels/customer/update/hostel"
+method: PATCH
+body:
+  type: json
+  content: "{\r
+
+    \  \"hostelID\": 7,\r
+
+    \  \"hostelName\": \"269/18/6 Phan Huy Ích\",\r
+
+    \  \"hostelAddress\": \"269/18/6 Phan Huy Ích Phường An Hội Tây\"\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{user_token}}"
+scripts:
+  - type: afterResponse
+    code: "let responseText = pm.response.text();\r
+
+      \r
+
+      let response = null;\r
+
+      try {\r
+
+      \    response = pm.response.json();\r
+
+      } catch (e) {\r
+
+      \    response = responseText;\r
+
+      }\r
+
+      \r
+
+      // 1. Update hostel successfully\r
+
+      pm.test(\"Update hostel successfully\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      })\r
+
+      \r
+
+      // 2. Check hostel name existed \r
+
+      pm.test(\"Hostel name is existed\", function () {\r
+
+      \    pm.expect(response).to.eql(\"Nhà này đã tồn tại !\");\r
+
+      })\r
+
+      \r
+
+      // 3. Response time < 2000ms\r
+
+      pm.test(\"Response time is less than 2000ms\", function () {\r
+
+      \    pm.expect(pm.response.responseTime).to.be.below(2000);\r
+
+      });\r
+
+      \r
+
+      \r
+
+      // 4. Check user is forbidden when not authorized.\r
+
+      pm.test(\"User is forbidden\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(403);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User is not forbidden\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      \r
+
+      // 5. Check unautorized response when no token is provided.\r
+
+      pm.test(\"Unauthorized when no token\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(401);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User has token\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      // 6. Update hostel fail\r
+
+      pm.test(\"Update hostel fail\", function () {\r
+
+      \    pm.response.to.have.status(400);\r
+
+      })\r
+
+      \r
+
+      // 7. Check validate hostel name\r
+
+      pm.test(\"Check validate hostel name\", function () {\r
+
+      \    pm.expect(response).to.eql(\"Vui lòng nhập tên nhà !\");\r
+
+      })\r
+
+      \r
+
+      // 8. Check validate hostel address\r
+
+      pm.test(\"Check validate hostel address\", function () {\r
+
+      \    pm.expect(response).to.eql(\"Vui lòng nhập địa chỉ nhà !\");\r
+
+      })\r
+
+      \r
+
+      // 9. Verify hostel update\r
+
+      let requestBody = {};\r
+
+      \r
+
+      try {\r
+
+      \    requestBody = JSON.parse(pm.request.body.raw);\r
+
+      } catch (e) {\r
+
+      \    console.log(\"Body parse error:\", e);\r
+
+      }\r
+
+      \r
+
+      pm.environment.set(\"hostel_id\", requestBody.hostelID);\r
+
+      pm.environment.set(\"hostel_name\", requestBody.hostelName);\r
+
+      pm.environment.set(\"hostel_address\", requestBody.hostelAddress);\r
+
+      \r
+
+      pm.sendRequest({\r
+
+      \    url: pm.globals.get(\"base_url\") + \"/api/hostels/customer/all\",\r
+
+      \    method: \"GET\",\r
+
+      \    header: {\r
+
+      \        \"Authorization\": \"Bearer \" + pm.globals.get(\"user_token\")\r
+
+      \    }\r
+
+      }, function (err, res) {\r
+
+      \r
+
+      \    if (err) {\r
+
+      \        console.log(err);\r
+
+      \        return new Error(err.message);\r
+
+      \    }\r
+
+      \r
+
+      \    let data = res.json();\r
+
+      \r
+
+      \r
+
+      \    let found = data.find(h => h.hostelID ==
+      pm.environment.get(\"hostel_id\"));\r
+
+      \r
+
+      \    pm.test(\"Verify updated hostel\", function () {\r
+
+      \        pm.expect(found).to.not.be.undefined;\r
+
+      \        pm.expect(found.hostelName).to.eql(pm.environment.get(\"hostel_n\
+      ame\"));\r
+
+      \        pm.expect(found.hostelAddress).to.eql(pm.environment.get(\"hoste\
+      l_address\"));\r
+
+      \    });\r
+
+      \r
+
+      });"
+    language: text/javascript
+order: 3000

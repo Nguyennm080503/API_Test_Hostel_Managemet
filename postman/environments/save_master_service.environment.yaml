@@ -1,0 +1,6 @@
+name: save_master_service
+values:
+  - key: service_name
+    value: ""
+    enabled: true
+color: null

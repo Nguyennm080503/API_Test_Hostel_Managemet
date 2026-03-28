@@ -1,0 +1,6 @@
+name: save_hostel_id
+values:
+  - key: hostel_id
+    value: ""
+    enabled: true
+color: null

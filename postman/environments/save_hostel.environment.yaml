@@ -1,0 +1,12 @@
+name: save_hostel
+values:
+  - key: hostel_id
+    value: ""
+    enabled: true
+  - key: hostel_name
+    value: ""
+    enabled: true
+  - key: hostel_address
+    value: ""
+    enabled: true
+color: null

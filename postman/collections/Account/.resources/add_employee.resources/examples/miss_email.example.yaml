@@ -1,0 +1,28 @@
+$kind: http-example
+request:
+  url: "{{base_url}}/api/accounts/add/employees"
+  method: POST
+  body:
+    type: json
+    content: "{\r
+
+      \  \"name\": \"Nguyên\",\r
+
+      \  \"email\": \"\",\r
+
+      \  \"phone\": \"123456\",\r
+
+      \  \"gender\": 1,\r
+
+      \  \"address\": \"HCM\",\r
+
+      \  \"citizenCard\": \"123456789\"\r
+
+      }"
+response:
+  statusCode: 200
+  statusText: OK
+  body:
+    type: text
+    content: ""
+order: 3000

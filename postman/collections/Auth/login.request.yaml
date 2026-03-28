@@ -1,0 +1,248 @@
+$kind: http-request
+description: >-
+  ## Login
+
+
+  Authenticates a user with their email and password. On success, returns a JWT
+  token along with the account ID and role, which are automatically saved to
+  Postman variables for use in subsequent requests.
+
+
+  ---
+
+
+  ### Request Body
+
+
+  Content-Type: `application/json`
+
+
+  | Field | Type | Required | Description |
+
+  | --- | --- | --- | --- |
+
+  | `email` | string | ✅ | The user's registered email address |
+
+  | `password` | string | ✅ | The user's password |
+
+
+  **Example:**
+
+
+  ``` json
+
+  {
+    "email": "admin@gmail.com",
+    "password": "@@abc123@@"
+  }
+
+   ```
+
+  ---
+
+
+  ### Successful Response (`200 OK`)
+
+
+  | Field | Type | Description |
+
+  | --- | --- | --- |
+
+  | `token` | string | JWT token used for authenticated requests |
+
+  | `accountID` | number | Unique identifier of the authenticated account |
+
+  | `role` | number | Role of the account: `0` = Admin, `1` = Staff, `2` =
+  Member |
+
+
+  ---
+
+
+  ### Error Responses
+
+
+  | Condition | Response |
+
+  | --- | --- |
+
+  | Wrong password | `"Sai mật khẩu"` |
+
+  | Account not found | `"Tài khoản không được tìm thấy"` |
+
+  | Invalid email format | `"Vui lòng nhập đúng format email đăng nhập!"` |
+
+  | Account is blocked | `"Tài khoản của bạn đang bị khóa!"` |
+
+  | Missing or wrong `Content-Type` header | `HTTP 415 Unsupported Media Type` —
+  Ensure the request header includes `Content-Type: application/json` |
+
+  | Server-side failure | `HTTP 500 Internal Server Error` |
+
+
+  ---
+
+
+  ### Notes
+
+
+  After a successful login, the post-response script automatically saves the
+  following values:
+
+
+  | Variable | Scope | Value |
+
+  | --- | --- | --- |
+
+  | `user_token` | Global | The returned `token` value |
+
+  | `user_id` | Environment | The returned `accountID` value (as string) |
+
+  | `role` | Environment | The returned `role` value (as string) |
+
+
+  These variables are then available via `{{user_token}}`, `{{user_id}}`, and
+  `{{role}}` in subsequent requests.
+url: "{{base_url}}/api/accounts/auth/login"
+method: POST
+body:
+  type: json
+  content: ""
+auth:
+  type: bearer
+  credentials:
+    token: "{{user_token}}"
+scripts:
+  - type: afterResponse
+    code: "let responseText = pm.response.text();\r
+
+      let response = null;\r
+
+      try {\r
+
+      \    response = pm.response.json();\r
+
+      } catch (e) {\r
+
+      \    response = responseText;\r
+
+      }\r
+
+      \r
+
+      if(response){\r
+
+      \    pm.globals.set(\"user_token\", response.token);\r
+
+      \    pm.environment.set(\"user_id\", String(response.accountID));\r
+
+      \    pm.environment.set(\"role\", String(response.role));\r
+
+      }\r
+
+      \r
+
+      \r
+
+      // 1. Check if the response status code is 200. (login successful)\r
+
+      pm.test(\"Login successfully\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      })\r
+
+      \r
+
+      // 2. Response time < 2000ms\r
+
+      pm.test(\"Response time is less than 2000ms\", function () {\r
+
+      \    pm.expect(pm.response.responseTime).to.be.below(2000);\r
+
+      });\r
+
+      \r
+
+      // 3. Check if wrong password\r
+
+      pm.test(\"Login failed with wrong password\", function () {\r
+
+      \    pm.expect(response).to.eql(\"Sai mật khẩu\");\r
+
+      })\r
+
+      \r
+
+      // 4. Check if not existed account\r
+
+      pm.test(\"Login failed with account is not existed\", function () {\r
+
+      \    pm.expect(response).to.eql(\"Tài khoản không được tìm thấy\");\r
+
+      })\r
+
+      \r
+
+      // .5 Check if email is wrong format\r
+
+      pm.test(\"Login failed with wrong format email\", function () {\r
+
+      \    pm.expect(response).to.eql(\"Vui lòng nhập đúng format email đăng
+      nhập!\");\r
+
+      })\r
+
+      \r
+
+      // .6 Check if account was blocked\r
+
+      pm.test(\"Login failed with blocked account\", function () {\r
+
+      \    pm.expect(response).to.eql(\"Tài khoản của bạn đang bị
+      khóa!\");\r
+
+      })\r
+
+      \r
+
+      // 7. Check if user is member\r
+
+      pm.test(\"User is member\", function () {\r
+
+      \    pm.expect(response.role).to.eql(2);\r
+
+      })\r
+
+      \r
+
+      // 8. Check if user is admin\r
+
+      pm.test(\"User is admin\", function () {\r
+
+      \    pm.expect(response.role).to.eql(0);\r
+
+      })\r
+
+      \r
+
+      // 9. Check if user is staff\r
+
+      pm.test(\"User is staff\", function () {\r
+
+      \    pm.expect(response.role).to.eql(1);\r
+
+      })\r
+
+      \r
+
+      // 10. Sever error\r
+
+      pm.test(\"Internal server error\", function () {\r
+
+      \    pm.response.to.have.status(500);\r
+
+      });\r\n"
+    language: text/javascript
+examples: ./.resources/login.resources/examples
+order: 1000

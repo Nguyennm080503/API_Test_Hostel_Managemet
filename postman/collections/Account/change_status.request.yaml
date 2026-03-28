@@ -1,0 +1,141 @@
+$kind: http-request
+url: "{{base_url}}/api/accounts/{{account_change_id}}/status"
+method: PATCH
+queryParams:
+  - key: status
+    value: null
+    disabled: true
+auth:
+  type: bearer
+  credentials:
+    token: "{{user_token}}"
+scripts:
+  - type: afterResponse
+    code: "// 1. Check change status successfully\r
+
+      pm.test(\"Change status successfully\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      \    pm.expect(pm.response.text()).to.include(\"thành công\");\r
+
+      });\r
+
+      \r
+
+      // 2. Response time < 2000ms\r
+
+      pm.test(\"Response time is less than 2000ms\", function () {\r
+
+      \    pm.expect(pm.response.responseTime).to.be.below(2000);\r
+
+      });\r
+
+      \r
+
+      \r
+
+      // 3. Check user is forbidden when not authorized.\r
+
+      pm.test(\"User is forbidden\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(403);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User is not forbidden\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      \r
+
+      // 4. Check unautorized response when no token is provided.\r
+
+      pm.test(\"Unauthorized when no token\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(401);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User has token\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      // 5. Check missing status\r
+
+      pm.test(\"Missing status param\", function () {\r
+
+      \    pm.expect(pm.response.text()).to.include(\"missing\");\r
+
+      });\r
+
+      \r
+
+      // 6. Check invalid status\r
+
+      pm.test(\"Invalid status value\", function () {\r
+
+      \    pm.expect(pm.response.text()).to.include(\"invalid status\");\r
+
+      });\r
+
+      \r
+
+      // 7. Check accountId not found\r
+
+      pm.test(\"Account not found\", function () {\r
+
+      \    pm.response.to.have.status(400);\r
+
+      \    pm.expect(pm.response.text()).to.include(\"Account not found\");\r
+
+      });\r
+
+      \r
+
+      // 8. Check invalid accountId format\r
+
+      pm.test(\"Invalid accountId format\", function () {\r
+
+      \    pm.response.to.have.status(400);\r
+
+      \    pm.expect(pm.response.text()).to.include(\"invalid accountId\");\r
+
+      });\r
+
+      \r
+
+      // 9.Check error when change status\r
+
+      pm.test(\"Change status is not successful\", function () {\r
+
+      \    pm.response.to.have.status(400);\r
+
+      });\r
+
+      \r
+
+      // 10. Sever error\r
+
+      pm.test(\"Internal server error\", function () {\r
+
+      \    pm.response.to.have.status(500);\r
+
+      });\r\n"
+    language: text/javascript
+  - type: beforeRequest
+    code: pm.environment.set("account_change_id", 1);
+    language: text/javascript
+order: 3000

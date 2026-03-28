@@ -1,0 +1,6 @@
+name: change_account_config
+values:
+  - key: account_change_id
+    value: ""
+    enabled: true
+color: null
