@@ -1,4 +1,90 @@
 $kind: http-request
+description: >-
+  ## Add Master Service
+
+
+  Creates a new master service entry in the system.
+
+
+  ---
+
+
+  ### Authentication
+
+
+  Requires a Bearer token passed via the `Authorization` header:
+
+
+  ```
+
+  Authorization: Bearer {{user_token}}
+
+   ```
+
+  ---
+
+
+  ### Request Body
+
+
+  Content-Type: `application/json`
+
+
+  | Field | Type | Required | Description |
+
+  | --- | --- | --- | --- |
+
+  | `serviceName` | string | Yes | The name of the service to create. |
+
+
+  **Example:**
+
+
+  ``` json
+
+  {
+    "serviceName": "string"
+  }
+
+   ```
+
+  ---
+
+
+  ### Responses
+
+
+  | Status | Description |
+
+  | --- | --- |
+
+  | `200 OK` | Service created successfully. |
+
+  | `200 OK` | Returns `"Dịch vụ đã tồn tại !"` if a service with the same name
+  already exists. |
+
+
+  ---
+
+
+  ### Test Scripts
+
+
+  The following automated tests are executed after the response is received:
+
+
+  1. **Status code is 200** — Asserts that the response status code equals
+  `200`.
+      
+  2. **Response time under 2000ms** — Asserts that the response time is below
+  `2000ms`.
+      
+  3. **Service name already exists check** — Verifies whether the API returns
+  the message `"Dịch vụ đã tồn tại !"` indicating a duplicate service name.
+      
+  4. **Verify service creation** — Sends a follow-up `GET` request to
+  `{{base_url}}/api/services/all` and confirms that the newly created service is
+  present in the returned list.
 url: "{{base_url}}/api/services/add/service"
 method: POST
 body:
@@ -105,13 +191,52 @@ scripts:
 
       \r
 
-      \    pm.test(\"Verify created hostel\", function () {\r
+      \    pm.test(\"Verify created master service successfully\", function ()
+      {\r
 
       \        pm.expect(found).to.not.be.undefined;\r
 
       \    });\r
 
       \r
+
+      });\r
+
+      \r
+
+      // 5. Check user is forbidden when not authorized.\r
+
+      pm.test(\"User is forbidden\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(403);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User is not forbidden\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      \r
+
+      // 6. Check unautorized response when no token is provided.\r
+
+      pm.test(\"Unauthorized when no token\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(401);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User has token\");\r
+
+      \    }\r
 
       });\r
 

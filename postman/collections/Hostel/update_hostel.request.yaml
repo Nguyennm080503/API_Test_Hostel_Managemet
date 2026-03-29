@@ -1,4 +1,143 @@
 $kind: http-request
+description: >-
+  ## Update Hostel
+
+
+  Updates the information of an existing hostel belonging to the authenticated
+  customer.
+
+
+  ---
+
+
+  ### Authentication
+
+
+  Requires a **Bearer Token** in the `Authorization` header.
+
+
+  ```
+
+  Authorization: Bearer {{user_token}}
+
+   ```
+
+  ---
+
+
+  ### Request Body
+
+
+  **Content-Type:** `application/json`
+
+
+  | Field | Type | Required | Description |
+
+  | --- | --- | --- | --- |
+
+  | `hostelID` | integer | Yes | The unique ID of the hostel to update |
+
+  | `hostelName` | string | Yes | The new name of the hostel |
+
+  | `hostelAddress` | string | Yes | The new address of the hostel |
+
+
+  **Example:**
+
+
+  ``` json
+
+  {
+    "hostelID": 7,
+    "hostelName": "269/18/6 Phan Huy Ích",
+    "hostelAddress": "269/18/6 Phan Huy Ích Phường An Hội Tây"
+  }
+
+   ```
+
+  ---
+
+
+  ### Responses
+
+
+  | Status Code | Description |
+
+  | --- | --- |
+
+  | `200 OK` | Hostel updated successfully |
+
+  | `400 Bad Request` | Validation failed (e.g. missing hostel name or address)
+  |
+
+  | `401 Unauthorized` | No token provided |
+
+  | `403 Forbidden` | User does not have permission to update this hostel |
+
+
+  **Validation error examples:**
+
+
+  - `"Vui lòng nhập tên nhà !"` — Hostel name is required
+      
+  - `"Vui lòng nhập địa chỉ nhà !"` — Hostel address is required
+      
+  - `"Nhà này đã tồn tại !"` — A hostel with this name already exists
+      
+
+  ---
+
+
+  ### Post-response Tests
+
+
+  The following automated tests are run after each response:
+
+
+  1. **Update hostel successfully** — Asserts status `200`
+      
+  2. **Hostel name is existed** — Asserts response body equals `"Nhà này đã tồn
+  tại !"`
+      
+  3. **Response time is less than 2000ms** — Asserts response time is below
+  2000ms
+      
+  4. **User is forbidden** — Asserts status `403`
+      
+  5. **Unauthorized when no token** — Asserts status `401`
+      
+  6. **Update hostel fail** — Asserts status `400`
+      
+  7. **Check validate hostel name** — Asserts response body equals `"Vui lòng
+  nhập tên nhà !"`
+      
+  8. **Check validate hostel address** — Asserts response body equals `"Vui lòng
+  nhập địa chỉ nhà !"`
+      
+  9. **Verify hostel update** — Sends a GET request to
+  `/api/hostels/customer/all` and verifies the updated hostel's name and address
+  match the request body
+      
+
+  ---
+
+
+  ### Environment Variables
+
+
+  After a successful request, the following environment variables are set for
+  use in downstream requests:
+
+
+  | Variable | Value |
+
+  | --- | --- |
+
+  | `hostel_id` | The `hostelID` from the request body |
+
+  | `hostel_name` | The `hostelName` from the request body |
+
+  | `hostel_address` | The `hostelAddress` from the request body |
 url: "{{base_url}}/api/hostels/customer/update/hostel"
 method: PATCH
 body:

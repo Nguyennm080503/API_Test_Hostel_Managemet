@@ -1,1 +1,80 @@
 $kind: collection
+description: >-
+  ## Account Collection
+
+
+  This collection provides endpoints for managing accounts within the **Hostel
+  Management System**. It covers core account operations including retrieving
+  all registered accounts, creating new employee accounts, and updating account
+  statuses.
+
+
+  ---
+
+
+  ## Authentication
+
+
+  All endpoints in this collection require a valid **Bearer Token**. Include the
+  token in the `Authorization` header for every request:
+
+
+  ```
+
+  Authorization: Bearer {{user_token}}
+
+   ```
+
+  ---
+
+
+  ## Endpoints Overview
+
+
+  | Method | Endpoint | Name | Description |
+
+  | --- | --- | --- | --- |
+
+  | `GET` | `{{base_url}}/api/accounts/all` | all_accounts | Retrieves a list of
+  all accounts registered in the system. |
+
+  | `POST` | `{{base_url}}/api/accounts/add/employees` | add_employee | Creates
+  a new employee account with required personal details. |
+
+  | `PATCH` | `{{base_url}}/api/accounts/{{account_change_id}}/status` |
+  change_status | Updates the status of a specific account identified by its ID.
+  |
+
+
+  ---
+
+
+  ## Operations Covered
+
+
+  - **List Accounts** — Fetch all accounts currently registered in the hostel
+  management system.
+      
+  - **Create Employee Account** — Register a new employee by providing details
+  such as name, email, phone, gender, address, and citizen ID.
+      
+  - **Update Account Status** — Change the status of an existing account using
+  its unique identifier.
+      
+
+  ---
+
+
+  ## Variables Used
+
+
+  | Variable | Description |
+
+  | --- | --- |
+
+  | `{{base_url}}` | The base URL of the API server |
+
+  | `{{user_token}}` | Bearer token used for authentication |
+
+  | `{{account_change_id}}` | The ID of the account whose status is to be
+  updated |

@@ -1,1 +1,68 @@
 $kind: collection
+description: >-
+  # Hostel Collection
+
+
+  This collection provides a complete set of **CRUD operations** for managing
+  hostels within the Hostel Management system. It is intended for authenticated
+  customers who need to create, retrieve, update, or delete their hostel
+  records.
+
+
+  ---
+
+
+  ## Authentication
+
+
+  All requests in this collection require a **Bearer Token** passed via the
+  `Authorization` header:
+
+
+  ```
+
+  Authorization: Bearer {{user_token}}
+
+   ```
+
+  Set the `{{user_token}}` variable in your active environment or globals before
+  sending any request. The `{{base_url}}` variable should also be configured to
+  point to your target API server.
+
+
+  ---
+
+
+  ## Endpoints Overview
+
+
+  | Method | Endpoint | Name | Description |
+
+  | --- | --- | --- | --- |
+
+  | `GET` | `/api/hostels/customer/all` | all_hostels | Retrieves a list of all
+  hostels available to the authenticated customer |
+
+  | `POST` | `/api/hostels/customer/add/hostel` | add_hostel | Creates and adds
+  a new hostel to the system |
+
+  | `PATCH` | `/api/hostels/customer/update/hostel` | update_hostel | Updates
+  the information of an existing hostel |
+
+  | `DELETE` | `/api/hostels/customer/delete/hostel` | delete_hostel |
+  Permanently deletes a specific hostel by its ID |
+
+
+  ---
+
+
+  ## Variables
+
+
+  | Variable | Description |
+
+  | --- | --- |
+
+  | `{{base_url}}` | The base URL of the API server |
+
+  | `{{user_token}}` | Bearer token for the authenticated customer |

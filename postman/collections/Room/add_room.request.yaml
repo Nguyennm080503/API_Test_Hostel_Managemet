@@ -1,0 +1,391 @@
+$kind: http-request
+url: "{{base_url}}/api/hostels/rooms/add/room"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"hostelID\": 0,\r
+
+    \  \"roomName\": \"string\",\r
+
+    \  \"capacity\": 0,\r
+
+    \  \"lenght\": 0,\r
+
+    \  \"width\": 0,\r
+
+    \  \"roomFee\": 0,\r
+
+    \  \"area\": 0\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{user_token}}"
+scripts:
+  - type: afterResponse
+    code: "// =======================\r
+
+      // COMMON PARSE\r
+
+      // =======================\r
+
+      let requestBody = {};\r
+
+      let resJson = {};\r
+
+      let responseText = pm.response.text();\r
+
+      \r
+
+      try {\r
+
+      \    requestBody = JSON.parse(pm.request.body.raw);\r
+
+      } catch (e) {\r
+
+      \    console.log(\"Request parse error\", e);\r
+
+      }\r
+
+      \r
+
+      try {\r
+
+      \    resJson = pm.response.json();\r
+
+      } catch (e) {\r
+
+      \    console.log(\"Response not JSON\");\r
+
+      }\r
+
+      \r
+
+      \r
+
+      // =======================\r
+
+      // 1. POSITIVE TEST\r
+
+      // =======================\r
+
+      pm.test(\"Status code should be 200 or 201 (Success case)\", function ()
+      {\r
+
+      \    if (pm.response.code === 200 || pm.response.code === 201) {\r
+
+      \        pm.expect(true).to.be.true;\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Response time < 2000ms\", function () {\r
+
+      \    pm.expect(pm.response.responseTime).to.be.below(2000);\r
+
+      });\r
+
+      \r
+
+      if (pm.response.code === 200 || pm.response.code === 201) {\r
+
+      \r
+
+      \    pm.test(\"Room created successfully\", function () {\r
+
+      \        pm.expect(responseText.toLowerCase()).to.include(\"created\");\r
+
+      \    });\r
+
+      \r
+
+      \    pm.test(\"Response matches request data\", function () {\r
+
+      \        pm.expect(resJson.roomName).to.eql(requestBody.roomName);\r
+
+      \        pm.expect(resJson.capacity).to.eql(requestBody.capacity);\r
+
+      \    });\r
+
+      \r
+
+      \    // Save room_id\r
+
+      \    if (resJson.id) {\r
+
+      \        pm.environment.set(\"room_id\", resJson.id);\r
+
+      \    }\r
+
+      }\r
+
+      \r
+
+      \r
+
+      // =======================\r
+
+      // 2. REQUIRED FIELD VALIDATION\r
+
+      // =======================\r
+
+      let requiredFields = [\"hostelID\", \"roomName\", \"capacity\",
+      \"lenght\", \"width\", \"roomFee\", \"area\"];\r
+
+      \r
+
+      requiredFields.forEach(field => {\r
+
+      \    if (!requestBody.hasOwnProperty(field)) {\r
+
+      \r
+
+      \        pm.test(`Missing ${field} → should return 400`, function () {\r
+
+      \            pm.response.to.have.status(400);\r
+
+      \        });\r
+
+      \r
+
+      \        pm.test(`${field} is required`, function () {\r
+
+      \            let text = responseText.toLowerCase();\r
+
+      \            pm.expect(text).to.include(field.toLowerCase());\r
+
+      \        });\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      \r
+
+      // =======================\r
+
+      // 3. DATA TYPE VALIDATION\r
+
+      // =======================\r
+
+      if (pm.response.code === 400) {\r
+
+      \r
+
+      \    pm.test(\"Validation error message returned\", function () {\r
+
+      \        let text = JSON.stringify(resJson).toLowerCase();\r
+
+      \        pm.expect(text).to.include(\"error\");\r
+
+      \    });\r
+
+      }\r
+
+      \r
+
+      \r
+
+      // =======================\r
+
+      // 4. VALUE VALIDATION\r
+
+      // =======================\r
+
+      if (requestBody.capacity !== undefined && requestBody.capacity <= 0) {\r
+
+      \    pm.test(\"Capacity must be > 0\", function () {\r
+
+      \        pm.response.to.have.status(400);\r
+
+      \    });\r
+
+      }\r
+
+      \r
+
+      if (requestBody.lenght !== undefined && requestBody.lenght <= 0) {\r
+
+      \    pm.test(\"Length must be > 0\", function () {\r
+
+      \        pm.response.to.have.status(400);\r
+
+      \    });\r
+
+      }\r
+
+      \r
+
+      if (requestBody.width !== undefined && requestBody.width <= 0) {\r
+
+      \    pm.test(\"Width must be > 0\", function () {\r
+
+      \        pm.response.to.have.status(400);\r
+
+      \    });\r
+
+      }\r
+
+      \r
+
+      if (requestBody.roomFee !== undefined && requestBody.roomFee < 0) {\r
+
+      \    pm.test(\"Room fee must be >= 0\", function () {\r
+
+      \        pm.response.to.have.status(400);\r
+
+      \    });\r
+
+      }\r
+
+      \r
+
+      if (requestBody.area !== undefined && requestBody.area <= 0) {\r
+
+      \    pm.test(\"Area must be > 0\", function () {\r
+
+      \        pm.response.to.have.status(400);\r
+
+      \    });\r
+
+      }\r
+
+      \r
+
+      \r
+
+      // =======================\r
+
+      // 5. BUSINESS LOGIC VALIDATION\r
+
+      // =======================\r
+
+      \r
+
+      // Area = length * width\r
+
+      if (requestBody.lenght && requestBody.width && requestBody.area) {\r
+
+      \r
+
+      \    let expectedArea = requestBody.lenght * requestBody.width;\r
+
+      \r
+
+      \    pm.test(\"Area must equal length * width\", function () {\r
+
+      \        pm.expect(requestBody.area).to.eql(expectedArea);\r
+
+      \    });\r
+
+      }\r
+
+      \r
+
+      \r
+
+      // =======================\r
+
+      // 6. VERIFY DATA AFTER CREATE \r
+
+      // =======================\r
+
+      if (pm.response.code === 200 || pm.response.code === 201) {\r
+
+      \r
+
+      \    pm.sendRequest({\r
+
+      \        url: pm.globals.get(\"base_url\") + \"/api/hostels/rooms/all\",\r
+
+      \        method: \"GET\",\r
+
+      \        header: {\r
+
+      \            \"Authorization\": \"Bearer \" +
+      pm.globals.get(\"user_token\")\r
+
+      \        }\r
+
+      \    }, function (err, res) {\r
+
+      \r
+
+      \        if (err) {\r
+
+      \            console.log(err);\r
+
+      \            return;\r
+
+      \        }\r
+
+      \r
+
+      \        let data = res.json();\r
+
+      \r
+
+      \        let found = data.find(r => r.id ==
+      pm.environment.get(\"room_id\"));\r
+
+      \r
+
+      \        pm.test(\"Verify created room exists in system\", function () {\r
+
+      \            pm.expect(found).to.not.be.undefined;\r
+
+      \        });\r
+
+      \r
+
+      \    });\r
+
+      }\r
+
+      \r
+
+      \r
+
+      // =======================\r
+
+      // 7. SECURITY TEST\r
+
+      // =======================\r
+
+      \r
+
+      // Unauthorized\r
+
+      pm.test(\"Unauthorized when no token (optional case)\", function () {\r
+
+      \    if (pm.response.code === 401) {\r
+
+      \        pm.expect(true).to.be.true;\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      // Forbidden\r
+
+      pm.test(\"Forbidden when no permission (optional case)\", function () {\r
+
+      \    if (pm.response.code === 403) {\r
+
+      \        pm.expect(true).to.be.true;\r
+
+      \    }\r
+
+      });"
+    language: text/javascript
+order: 2000

@@ -1,0 +1,202 @@
+$kind: http-request
+url: "{{base_url}}/api/services/customer/update/service"
+method: PATCH
+body:
+  type: json
+  content: "{\r
+
+    \  \"serviceHostelID\": 0,\r
+
+    \  \"serviceHostelPrice\": 0\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{user_token}}"
+scripts:
+  - type: afterResponse
+    code: "// 1. Status code = 200\r
+
+      pm.test(\"Update service into room successfully\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      // 2. Response time < 2000ms\r
+
+      pm.test(\"Response time is less than 2000ms\", function () {\r
+
+      \    pm.expect(pm.response.responseTime).to.be.below(2000);\r
+
+      });\r
+
+      \r
+
+      // 3. Check room service does not exist\r
+
+      pm.test(\"Room servic does not exist\", function () {\r
+
+      \    pm.expect(response).to.include(\"Room servic does not exist\");\r
+
+      })\r
+
+      \r
+
+      // 4. Check require room service id\r
+
+      pm.test(\"Room service id must require\", function () {\r
+
+      \    pm.expect(response).to.include(\"Room service id must require\");\r
+
+      })\r
+
+      \r
+
+      // 5. Check require price\r
+
+      pm.test(\"Price room service must require\", function () {\r
+
+      \    pm.expect(response).to.include(\"Price room service must
+      require\");\r
+
+      })\r
+
+      \r
+
+      // 6. Check format price\r
+
+      pm.test(\"Verify format price service wrong\", function () {\r
+
+      \    pm.expect(response).to.include(\"Format price is wrong\");\r
+
+      })\r
+
+      \r
+
+      // 7. Verify service added\r
+
+      let requestBody = {};\r
+
+      \r
+
+      try {\r
+
+      \    let service_id = JSON.parse(pm.request.body.raw.serviceHostelID);\r
+
+      \    let service_price =
+      JSON.parse(pm.request.body.raw.serviceHostelPrice);\r
+
+      \    pm.environment.set(\"service_id\", service_id);\r
+
+      \    pm.environment.set(\"service_price\", service_price);\r
+
+      } catch (e) {\r
+
+      \    console.log(e);\r
+
+      }\r
+
+      \r
+
+      pm.sendRequest({\r
+
+      \    url: pm.globals.get(\"base_url\") + \"/api/services/customer/all\",\r
+
+      \    method: \"GET\",\r
+
+      \    header: {\r
+
+      \        \"Authorization\": \"Bearer \" + pm.globals.get(\"user_token\")\r
+
+      \    }\r
+
+      }, function (err, res) {\r
+
+      \r
+
+      \    if (err) {\r
+
+      \        console.log(err);\r
+
+      \        return new Error(err.message);\r
+
+      \    }\r
+
+      \r
+
+      \    let data = res.json();\r
+
+      \r
+
+      \r
+
+      \    let found = data.find(h => h.serviceHostelID ==
+      pm.environment.get(\"service_id\") && h.serviceHostelPrice ==
+      pm.environment.get(\"service_price\"));\r
+
+      \r
+
+      \    pm.test(\"Verify update service on room successfully\", function ()
+      {\r
+
+      \        pm.expect(found).to.not.be.undefined;\r
+
+      \    });\r
+
+      \r
+
+      });\r
+
+      \r
+
+      // 8. Check user is forbidden when not authorized.\r
+
+      pm.test(\"User is forbidden\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(403);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User is not forbidden\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      \r
+
+      // 9. Check unautorized response when no token is provided.\r
+
+      pm.test(\"Unauthorized when no token\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(401);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User has token\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      \r
+
+      \r
+
+      \r
+
+      \r\n"
+    language: text/javascript
+order: 4000

@@ -1,4 +1,113 @@
 $kind: http-request
+description: >-
+  ## Overview
+
+
+  This is a **POST** endpoint that allows an authenticated customer to create
+  and add a new hostel to the system.
+
+
+  **Endpoint:** `POST {{base_url}}/api/hostels/customer/add/hostel`
+
+
+  ---
+
+
+  ## Authentication
+
+
+  This endpoint requires a **Bearer Token** in the `Authorization` header. The
+  token is stored in the `{{user_token}}` global variable.
+
+
+  ```
+
+  Authorization: Bearer {{user_token}}
+
+   ```
+
+  ---
+
+
+  ## Request Body
+
+
+  The request body must be a JSON object with the following fields:
+
+
+  | Field | Type | Required | Description |
+
+  | --- | --- | --- | --- |
+
+  | `hostelName` | string | ✅ Yes | Name of the hostel |
+
+  | `hostelType` | integer | ✅ Yes | Type/category of the hostel |
+
+  | `hostelAddress` | string | ✅ Yes | Address of the hostel |
+
+  | `hostelRooms` | integer | ✅ Yes | Number of rooms in the hostel |
+
+  | `hostelPrice` | number | ✅ Yes | Price per room/night |
+
+
+  **Example Request Body:**
+
+
+  ``` json
+
+  {
+    "hostelName": "string",
+    "hostelType": 0,
+    "hostelAddress": "string",
+    "hostelRooms": 0,
+    "hostelPrice": 0
+  }
+
+   ```
+
+  ---
+
+
+  ## Responses
+
+
+  | Status Code | Description |
+
+  | --- | --- |
+
+  | `200 OK` | Hostel created successfully |
+
+  | `400 Bad Request` | Validation failed (e.g., missing hostel name, missing
+  type, missing address, missing room count) |
+
+  | `401 Unauthorized` | No token provided |
+
+  | `403 Forbidden` | User does not have permission to perform this action |
+
+
+  ---
+
+
+  ## Validation Messages
+
+
+  The API may return the following Vietnamese validation messages in the
+  response body:
+
+
+  | Message | Meaning |
+
+  | --- | --- |
+
+  | `"Nhà này đã tồn tại !"` | Hostel name already exists |
+
+  | `"Vui lòng nhập tên nhà !"` | Please enter hostel name |
+
+  | `"Vui lòng chọn loại nhà thuê !"` | Please select hostel type |
+
+  | `"Vui lòng nhập địa chỉ nhà !"` | Please enter hostel address |
+
+  | `"Vui lòng nhập số phòng của nhà !"` | Please enter number of rooms |
 url: "{{base_url}}/api/hostels/customer/add/hostel"
 method: POST
 body:

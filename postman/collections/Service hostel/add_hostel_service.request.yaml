@@ -1,0 +1,291 @@
+$kind: http-request
+description: >-
+  ## add_hostel_service
+
+
+  Adds a service to a specific hostel in the Hostel Management system. This
+  endpoint links an existing service (identified by `serviceHostelRoomID`) to a
+  hostel (identified by `hostelID`).
+
+
+  ---
+
+
+  ### Authentication
+
+
+  Requires a valid Bearer token:
+
+
+  ```
+
+  Authorization: Bearer {{user_token}}
+
+   ```
+
+  ---
+
+
+  ### Request Body
+
+
+  The request body must be a JSON array containing one object with the following
+  fields:
+
+
+  | Field | Type | Description |
+
+  | --- | --- | --- |
+
+  | `hostelID` | integer | The ID of the hostel to add the service to |
+
+  | `serviceHostelRoomID` | integer | The ID of the service to be added to the
+  hostel |
+
+
+  **Example:**
+
+
+  ``` json
+
+  [
+    {
+      "hostelID": 1,
+      "serviceHostelRoomID": 2
+    }
+  ]
+
+   ```
+
+  ---
+
+
+  ### Responses
+
+
+  | Status Code | Description |
+
+  | --- | --- |
+
+  | `200 OK` | Service was successfully added to the hostel |
+
+  | `200` (with message) | `"Service name does not exist"` — the specified
+  service does not exist |
+
+  | `200` (with message) | `"The hostel had the service added"` — the service is
+  already linked to the hostel |
+
+  | `200` (with message) | `"Hostel does not exist"` — the specified hostel was
+  not found |
+
+  | `401 Unauthorized` | No token provided or token is invalid |
+
+  | `403 Forbidden` | The authenticated user does not have permission to perform
+  this action |
+
+
+  ---
+
+
+  ### Notes
+
+
+  - The response time is expected to be under **2000ms**.
+      
+  - After a successful addition, the service can be verified by calling `GET
+  {{base_url}}/api/services/hostel/all?hostelId={{hostel_id}}`.
+url: "{{base_url}}/api/services/hostel/add/service"
+method: POST
+body:
+  type: json
+  content: "[\r
+
+    \  {\r
+
+    \    \"hostelID\": 0,\r
+
+    \    \"serviceHostelRoomID\": 0\r
+
+    \  }\r
+
+    ]"
+auth:
+  type: bearer
+  credentials:
+    token: "{{user_token}}"
+scripts:
+  - type: afterResponse
+    code: "// 1. Status code = 200\r
+
+      pm.test(\"Add service into hostel successfully\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      // 2. Response time < 2000ms\r
+
+      pm.test(\"Response time is less than 2000ms\", function () {\r
+
+      \    pm.expect(pm.response.responseTime).to.be.below(2000);\r
+
+      });\r
+
+      \r
+
+      // 3. Check service does not exist\r
+
+      pm.test(\"Service name does not exist\", function () {\r
+
+      \    pm.expect(response).to.include(\"Service name does not exist\");\r
+
+      })\r
+
+      \r
+
+      // 4. Check service exists on hostel\r
+
+      pm.test(\"The hostel had the service added\", function () {\r
+
+      \    pm.expect(response).to.include(\"The hostel had the service
+      added\");\r
+
+      })\r
+
+      \r
+
+      // 5. Check hostel does not exists\r
+
+      pm.test(\"Hostel does not exist\", function () {\r
+
+      \    pm.expect(response).to.include(\"Hostel does not exist\");\r
+
+      })\r
+
+      \r
+
+      // 4. Verify service added\r
+
+      let requestBody = {};\r
+
+      \r
+
+      try {\r
+
+      \    let service_id =
+      JSON.parse(pm.request.body.raw.serviceHostelRoomID);\r
+
+      \    let hostel_id = JSON.parse(pm.request.body.raw.hostelID);\r
+
+      \    pm.environment.set(\"service_id\", service_id);\r
+
+      \    pm.environment.set(\"hostel_id\", hostel_id);\r
+
+      } catch (e) {\r
+
+      \    console.log(e);\r
+
+      }\r
+
+      \r
+
+      pm.sendRequest({\r
+
+      \    url: pm.globals.get(\"base_url\") +
+      \"/api/services/hostel/all?hostelId=\" + hostel_id,\r
+
+      \    method: \"GET\",\r
+
+      \    header: {\r
+
+      \        \"Authorization\": \"Bearer \" + pm.globals.get(\"user_token\")\r
+
+      \    }\r
+
+      }, function (err, res) {\r
+
+      \r
+
+      \    if (err) {\r
+
+      \        console.log(err);\r
+
+      \        return new Error(err.message);\r
+
+      \    }\r
+
+      \r
+
+      \    let data = res.json();\r
+
+      \r
+
+      \r
+
+      \    let found = data.find(h => h.serviceHostelRoomID ==
+      pm.environment.get(\"service_id\"));\r
+
+      \r
+
+      \    pm.test(\"Verify added service on hostel successfully\", function ()
+      {\r
+
+      \        pm.expect(found).to.not.be.undefined;\r
+
+      \    });\r
+
+      \r
+
+      });\r
+
+      \r
+
+      // 5. Check user is forbidden when not authorized.\r
+
+      pm.test(\"User is forbidden\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(403);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User is not forbidden\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      \r
+
+      // 6. Check unautorized response when no token is provided.\r
+
+      pm.test(\"Unauthorized when no token\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(401);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User has token\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      \r
+
+      \r
+
+      \r
+
+      \r\n"
+    language: text/javascript
+order: 2000

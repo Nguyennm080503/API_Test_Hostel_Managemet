@@ -1,1 +1,60 @@
 $kind: collection
+description: >-
+  ## Service Collection
+
+
+  This collection provides endpoints for managing **master services** in the
+  Hostel Management system. Administrators can retrieve all registered services,
+  add new ones, or remove existing ones. These services can be associated with
+  hostels or used for system configuration.
+
+
+  ---
+
+
+  ## Base URL
+
+
+  All requests use `{{base_url}}` as the base URL (e.g.,
+  `http://localhost:8080`).
+
+
+  ---
+
+
+  ## Authentication
+
+
+  All requests require a **Bearer Token** passed via the `Authorization` header:
+
+
+  ```
+
+  Authorization: Bearer {{user_token}}
+
+   ```
+
+  The token is stored in the `{{user_token}}` variable and is automatically
+  applied to every request in this collection.
+
+
+  ---
+
+
+  ## Endpoints
+
+
+  | Method | Endpoint | Name | Description |
+
+  | --- | --- | --- | --- |
+
+  | `GET` | `{{base_url}}/api/services/all` | all_master_services | Retrieves
+  all master services registered in the system |
+
+  | `POST` | `{{base_url}}/api/services/add/service` | add_master_service |
+  Creates a new master service entry with a `serviceName` field in the JSON body
+  |
+
+  | `DELETE` | `{{base_url}}/api/services/delete/service` |
+  delete_master_service | Deletes a master service by its `serviceID` query
+  parameter |

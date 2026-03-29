@@ -1,4 +1,104 @@
 $kind: http-request
+description: >-
+  ## Get All Accounts
+
+
+  Retrieves a list of all accounts registered in the system.
+
+
+  ---
+
+
+  ### HTTP Method & URL
+
+
+  ```
+
+  GET {{base_url}}/api/accounts/all
+
+   ```
+
+  ---
+
+
+  ### Authentication
+
+
+  This endpoint requires a **Bearer Token**. The token is passed via the
+  `Authorization` header using the `{{user_token}}` variable.
+
+
+  ```
+
+  Authorization: Bearer {{user_token}}
+
+   ```
+
+  ---
+
+
+  ### Variables Used
+
+
+  | Variable | Description |
+
+  | --- | --- |
+
+  | `{{base_url}}` | The base URL of the API server |
+
+  | `{{user_token}}` | The Bearer token used for authentication |
+
+
+  ---
+
+
+  ### Expected Responses
+
+
+  | Status Code | Description |
+
+  | --- | --- |
+
+  | `200 OK` | Successfully retrieved a list of accounts |
+
+  | `401 Unauthorized` | No token was provided or the token is invalid |
+
+  | `403 Forbidden` | The authenticated user does not have permission to access
+  this resource |
+
+  | `500 Internal Server Error` | An unexpected error occurred on the server |
+
+
+  ---
+
+
+  ### Test Coverage
+
+
+  The following tests are included in the post-response script:
+
+
+  | # | Test Name | Description |
+
+  | --- | --- | --- |
+
+  | 1 | **Return status code 200** | Asserts that the response status is `200
+  OK` |
+
+  | 2 | **Response time is less than 2000ms** | Asserts that the response time
+  is below 2000 milliseconds |
+
+  | 3 | **User is forbidden** | Checks that a `403 Forbidden` response is
+  returned when the user lacks permission |
+
+  | 4 | **Unauthorized when no token** | Checks that a `401 Unauthorized`
+  response is returned when no token is provided |
+
+  | 5 | **Check list accounts has more than a account** | Asserts that the
+  returned list contains more than one account |
+
+  | 6 | **Internal server error** | Checks that a `500 Internal Server Error`
+  response is handled |
 url: "{{base_url}}/api/accounts/all"
 method: GET
 auth:

@@ -1,0 +1,58 @@
+$kind: collection
+description: >-
+  ## Service Hostel
+
+
+  This collection manages the **services associated with a hostel** in the
+  Hostel Management system. It provides endpoints to create new hostel services
+  and retrieve the full list of services linked to a specific hostel.
+
+
+  ---
+
+
+  ### Endpoints
+
+
+  | Method | Endpoint | Description |
+
+  | --- | --- | --- |
+
+  | `GET` | `/api/services/hostel/all` | Retrieve all services linked to a
+  specific hostel by `hostelId` |
+
+  | `POST` | `/api/services/hostel/add/service` | Create a new master service
+  entry in the system |
+
+
+  ---
+
+
+  ### Authentication
+
+
+  All requests require a **Bearer Token** passed via the `Authorization` header:
+
+
+  ```
+
+  Authorization: Bearer {{user_token}}
+
+   ```
+
+  ---
+
+
+  ### Variables Used
+
+
+  | Variable | Description |
+
+  | --- | --- |
+
+  | `{{base_url}}` | The base URL of the API server (e.g.,
+  `http://localhost:8080`) |
+
+  | `{{user_token}}` | The authenticated user's JWT/Bearer token |
+
+  | `{{hostel_id}}` | The ID of the hostel whose services are being managed |

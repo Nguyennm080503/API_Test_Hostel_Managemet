@@ -1,0 +1,15 @@
+name: save_service_room
+values:
+  - key: service_id
+    value: ""
+    enabled: true
+  - key: service_name
+    value: ""
+    enabled: true
+  - key: service_price
+    value: ""
+    enabled: true
+  - key: measure
+    value: ""
+    enabled: true
+color: null

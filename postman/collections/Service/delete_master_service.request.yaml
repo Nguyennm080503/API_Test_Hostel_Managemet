@@ -1,0 +1,254 @@
+$kind: http-request
+description: >-
+  ## Delete Master Service
+
+
+  Deletes a master service from the system by its ID. Once deleted, the service
+  will no longer be available for association with hostels.
+
+
+  ---
+
+
+  ### Authentication
+
+
+  Requires a Bearer token passed via the `Authorization` header:
+
+
+  ```
+
+  Authorization: Bearer {{user_token}}
+
+   ```
+
+  ---
+
+
+  ### Query Parameters
+
+
+  | Parameter | Type | Required | Description |
+
+  | --- | --- | --- | --- |
+
+  | `serviceID` | string | Yes | The unique identifier of the master service to
+  delete. |
+
+
+  ---
+
+
+  ### Responses
+
+
+  | Status Code | Description |
+
+  | --- | --- |
+
+  | `200 OK` | Service deleted successfully. |
+
+  | `200 OK` | Returns `"ID does not exists"` if the provided `serviceID` is not
+  found. |
+
+
+  ---
+
+
+  ### Test Coverage
+
+
+  This request includes the following automated tests:
+
+
+  - **Delete master service successfully** – Verifies the response status is
+  `200`.
+      
+  - **Master service does not exist** – Checks that the response body equals
+  `"ID does not exists"` when the ID is invalid.
+      
+  - **Response time is less than 2000ms** – Ensures the response is returned
+  within 2 seconds.
+      
+  - **Verify deleted master service** – Sends a follow-up `GET
+  /api/services/all` request to confirm the deleted service no longer appears in
+  the list.
+      
+
+  ---
+
+
+  ### Notes
+
+
+  - The `serviceID` query parameter is automatically saved to the
+  `master_service_id` environment variable after the request is sent.
+      
+  - Uses `{{base_url}}` (global variable) for the base URL and `{{user_token}}`
+  (global variable) for authentication.
+url: "{{base_url}}/api/services/delete/service"
+method: DELETE
+queryParams:
+  - key: serviceID
+    value: null
+    disabled: true
+auth:
+  type: bearer
+  credentials:
+    token: "{{user_token}}"
+scripts:
+  - type: afterResponse
+    code: "let responseText = pm.response.text();\r
+
+      \r
+
+      let response = null;\r
+
+      try {\r
+
+      \    response = pm.response.json();\r
+
+      } catch (e) {\r
+
+      \    response = responseText;\r
+
+      }\r
+
+      \r
+
+      // 1. Delete master service successfully\r
+
+      pm.test(\"Delete master service successfully\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      })\r
+
+      \r
+
+      // 2. Check service name does not exists\r
+
+      pm.test(\"Master service does not exists\", function () {\r
+
+      \    pm.expect(response).to.eql(\"ID does not exists\");\r
+
+      })\r
+
+      \r
+
+      // 3. Response time < 2000ms\r
+
+      pm.test(\"Response time is less than 2000ms\", function () {\r
+
+      \    pm.expect(pm.response.responseTime).to.be.below(2000);\r
+
+      });\r
+
+      \r
+
+      // 4. Verify master service delete\r
+
+      let requestBody = {};\r
+
+      \r
+
+      try {\r
+
+      \    let master_service_id = pm.request.url.query.get(\"serviceID\");\r
+
+      \    pm.environment.set(\"master_service_id\", master_service_id);\r
+
+      } catch (e) {\r
+
+      \    console.log(e);\r
+
+      }\r
+
+      \r
+
+      pm.sendRequest({\r
+
+      \    url: pm.globals.get(\"base_url\") + \"/api/services/all\",\r
+
+      \    method: \"GET\",\r
+
+      \    header: {\r
+
+      \        \"Authorization\": \"Bearer \" + pm.globals.get(\"user_token\")\r
+
+      \    }\r
+
+      }, function (err, res) {\r
+
+      \r
+
+      \    if (err) {\r
+
+      \        console.log(err);\r
+
+      \        return new Error(err.message);\r
+
+      \    }\r
+
+      \r
+
+      \    let data = res.json();\r
+
+      \r
+
+      \r
+
+      \    let found = data.find(h => h.serviceID ==
+      pm.environment.get(\"master_service_id\"));\r
+
+      \r
+
+      \    pm.test(\"Verify deleted master service\", function () {\r
+
+      \        pm.expect(found).to.be.undefined;\r
+
+      \    });\r
+
+      \r
+
+      });\r
+
+      \r
+
+      // 5. Check user is forbidden when not authorized.\r
+
+      pm.test(\"User is forbidden\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(403);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User is not forbidden\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      \r
+
+      // 6. Check unautorized response when no token is provided.\r
+
+      pm.test(\"Unauthorized when no token\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(401);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User has token\");\r
+
+      \    }\r
+
+      });"
+    language: text/javascript
+order: 3000

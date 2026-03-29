@@ -1,4 +1,85 @@
 $kind: http-request
+description: >-
+  ## Delete Hostel
+
+
+  Deletes a specific hostel by its ID. This endpoint removes the hostel record
+  from the system permanently.
+
+
+  ---
+
+
+  ### Endpoint
+
+
+  **Method:** `DELETE`  
+
+  **URL:** `{{base_url}}/api/hostels/customer/delete/hostel`
+
+
+  ---
+
+
+  ### Authentication
+
+
+  Requires a Bearer token passed via the `Authorization` header:
+
+
+  ```
+
+  Authorization: Bearer {{user_token}}
+
+   ```
+
+  The `{{user_token}}` variable should be set in your active environment or
+  globals.
+
+
+  ---
+
+
+  ### Query Parameters
+
+
+  | Parameter | Type | Required | Description |
+
+  | --- | --- | --- | --- |
+
+  | `hostelId` | string | Yes | The ID of the hostel to delete |
+
+
+  **Example:**
+
+
+  ```
+
+  DELETE {{base_url}}/api/hostels/customer/delete/hostel?hostelId=123
+
+   ```
+
+  ---
+
+
+  ### Test Scripts
+
+
+  The following automated tests are executed after the response is received:
+
+
+  1. **Delete hostel successfully** — Verifies that the response status code is
+  `200 OK`.
+      
+  2. **Hostel name does not exist** — Checks that the response body equals `"ID
+  does not exists"` when an invalid or non-existent hostel ID is provided.
+      
+  3. **Response time is less than 2000ms** — Asserts that the response time is
+  under 2000 milliseconds.
+      
+  4. **Verify deleted hostel** — Sends a follow-up `GET` request to
+  `/api/hostels/customer/all` and confirms that the deleted hostel no longer
+  appears in the returned list (matched by `hostelID`).
 url: "{{base_url}}/api/hostels/customer/delete/hostel"
 method: DELETE
 queryParams:

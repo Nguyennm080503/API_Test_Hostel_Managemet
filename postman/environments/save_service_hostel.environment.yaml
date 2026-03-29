@@ -1,9 +1,9 @@
-name: save_master_service
+name: save_service_hostel
 values:
-  - key: service_name
+  - key: hostel_id
     value: ""
     enabled: true
-  - key: master_service_id
+  - key: service_id
     value: ""
     enabled: true
 color: null

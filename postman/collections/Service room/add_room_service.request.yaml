@@ -1,0 +1,197 @@
+$kind: http-request
+url: "{{base_url}}/api/services/customer/add/service"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"serviceHostelName\": \"string\",\r
+
+    \  \"serviceHostelPrice\": 0,\r
+
+    \  \"measurementID\": 0\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{user_token}}"
+scripts:
+  - type: afterResponse
+    code: "// 1. Status code = 200\r
+
+      pm.test(\"Add service into room successfully\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      // 2. Response time < 2000ms\r
+
+      pm.test(\"Response time is less than 2000ms\", function () {\r
+
+      \    pm.expect(pm.response.responseTime).to.be.below(2000);\r
+
+      });\r
+
+      \r
+
+      // 3. Check measure does not exist\r
+
+      pm.test(\"Meassurement does not exist\", function () {\r
+
+      \    pm.expect(response).to.include(\"Measurement does not exist\");\r
+
+      })\r
+
+      \r
+
+      // 4. Check service exists on room\r
+
+      pm.test(\"The room had the service added\", function () {\r
+
+      \    pm.expect(response).to.include(\"The room had the service added\");\r
+
+      })\r
+
+      \r
+
+      // 5. Check format price\r
+
+      pm.test(\"Verify format price service wrong\", function () {\r
+
+      \    pm.expect(response).to.include(\"Format price is wrong\");\r
+
+      })\r
+
+      \r
+
+      // 6. Verify service added\r
+
+      let requestBody = {};\r
+
+      \r
+
+      try {\r
+
+      \    let service_name =
+      JSON.parse(pm.request.body.raw.serviceHostelName);\r
+
+      \    let service_price =
+      JSON.parse(pm.request.body.raw.serviceHostelPrice);\r
+
+      \    let measure = JSON.parse(pm.request.body.raw.measurementID);\r
+
+      \    pm.environment.set(\"service_name\", service_name);\r
+
+      \    pm.environment.set(\"service_price\", service_price);\r
+
+      \    pm.environment.set(\"measure\", measure);\r
+
+      } catch (e) {\r
+
+      \    console.log(e);\r
+
+      }\r
+
+      \r
+
+      pm.sendRequest({\r
+
+      \    url: pm.globals.get(\"base_url\") + \"/api/services/customer/all\",\r
+
+      \    method: \"GET\",\r
+
+      \    header: {\r
+
+      \        \"Authorization\": \"Bearer \" + pm.globals.get(\"user_token\")\r
+
+      \    }\r
+
+      }, function (err, res) {\r
+
+      \r
+
+      \    if (err) {\r
+
+      \        console.log(err);\r
+
+      \        return new Error(err.message);\r
+
+      \    }\r
+
+      \r
+
+      \    let data = res.json();\r
+
+      \r
+
+      \r
+
+      \    let found = data.find(h => h.serviceHostelName ==
+      pm.environment.get(\"service_name\"));\r
+
+      \r
+
+      \    pm.test(\"Verify added service on room successfully\", function ()
+      {\r
+
+      \        pm.expect(found).to.not.be.undefined;\r
+
+      \    });\r
+
+      \r
+
+      });\r
+
+      \r
+
+      // 7. Check user is forbidden when not authorized.\r
+
+      pm.test(\"User is forbidden\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(403);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User is not forbidden\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      \r
+
+      // 8. Check unautorized response when no token is provided.\r
+
+      pm.test(\"Unauthorized when no token\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(401);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User has token\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      \r
+
+      \r
+
+      \r
+
+      \r\n"
+    language: text/javascript
+order: 2000

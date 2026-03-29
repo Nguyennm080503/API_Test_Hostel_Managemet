@@ -1,0 +1,108 @@
+$kind: http-request
+url: "{{base_url}}/api/hostels/rooms/all"
+method: GET
+queryParams:
+  - key: hostelId
+    value: null
+    disabled: true
+auth:
+  type: bearer
+  credentials:
+    token: "{{user_token}}"
+scripts:
+  - type: afterResponse
+    code: "let responseText = pm.response.text();\r
+
+      \r
+
+      let response = null;\r
+
+      try {\r
+
+      \    response = pm.response.json();\r
+
+      } catch (e) {\r
+
+      \    response = responseText;\r
+
+      }\r
+
+      \r
+
+      // 1. Status code = 200\r
+
+      pm.test(\"Load list of room successfully\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      // 2. Response time < 2000ms\r
+
+      pm.test(\"Response time is less than 2000ms\", function () {\r
+
+      \    pm.expect(pm.response.responseTime).to.be.below(2000);\r
+
+      });\r
+
+      \r
+
+      // 3. Check hostel does not exists\r
+
+      pm.test(\"Hostel does not exist\", function () {\r
+
+      \    pm.expect(response).to.include(\"Hostel does not exist\");\r
+
+      })\r
+
+      \r
+
+      // 4. Check format hostelID\r
+
+      pm.test(\"ID hostel must a number type\", function () {\r
+
+      \    pm.expect(response).to.include(\"ID hostel must a number type\");\r
+
+      })\r
+
+      \r
+
+      // 5. Check user is forbidden when not authorized.\r
+
+      pm.test(\"User is forbidden\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(403);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User is not forbidden\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      \r
+
+      // 6. Check unautorized response when no token is provided.\r
+
+      pm.test(\"Unauthorized when no token\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(401);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User has token\");\r
+
+      \    }\r
+
+      });"
+    language: text/javascript
+order: 1000

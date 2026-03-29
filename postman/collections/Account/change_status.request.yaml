@@ -1,4 +1,128 @@
 $kind: http-request
+description: >-
+  ## Change Account Status
+
+
+  Updates the status of a specific account identified by its ID.
+
+
+  ---
+
+
+  ### HTTP Method & URL
+
+
+  ```
+
+  PATCH {{base_url}}/api/accounts/{{account_change_id}}/status
+
+   ```
+
+  ---
+
+
+  ### Authentication
+
+
+  This endpoint requires a valid Bearer token. Include the token in the
+  `Authorization` header:
+
+
+  ```
+
+  Authorization: Bearer {{user_token}}
+
+   ```
+
+  Requests without a valid token will receive a `401 Unauthorized` response.
+  Requests from users without sufficient permissions will receive a `403
+  Forbidden` response.
+
+
+  ---
+
+
+  ### Path Variables
+
+
+  | Variable | Description |
+
+  | --- | --- |
+
+  | `account_change_id` | The ID of the account whose status is to be changed.
+  Set via pre-request script (default: `1`). |
+
+
+  ---
+
+
+  ### Request Body
+
+
+  Provide the new status value as a request body parameter.
+
+
+  | Field | Type | Required | Description |
+
+  | --- | --- | --- | --- |
+
+  | `status` | string | Yes | The new status to assign to the account. |
+
+
+  > Missing or invalid `status` values will result in an error response. 
+    
+
+  ---
+
+
+  ### Responses
+
+
+  | Status Code | Description |
+
+  | --- | --- |
+
+  | `200 OK` | Status changed successfully. Response includes a success message
+  ("thành công"). |
+
+  | `400 Bad Request` | Invalid request — possible causes: invalid `accountId`
+  format, account not found, missing/invalid `status` param, or other change
+  failure. |
+
+  | `401 Unauthorized` | No token provided or token is invalid. |
+
+  | `403 Forbidden` | Authenticated user does not have permission to perform
+  this action. |
+
+  | `500 Internal Server Error` | An unexpected server error occurred. |
+
+
+  ---
+
+
+  ### Pre-request Script
+
+
+  The pre-request script automatically sets the `account_change_id` environment
+  variable to `1` before the request is sent:
+
+
+  ``` javascript
+
+  pm.environment.set("account_change_id", 1);
+
+   ```
+
+  ---
+
+
+  ### Notes
+
+
+  - Response time should be under **2000ms**.
+      
+  - Ensure the `base_url` and `user_token` global variables are configured in
+  your environment before running this request.
 url: "{{base_url}}/api/accounts/{{account_change_id}}/status"
 method: PATCH
 queryParams:

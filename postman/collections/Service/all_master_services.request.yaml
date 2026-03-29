@@ -1,4 +1,91 @@
 $kind: http-request
+description: >-
+  ## all_master_services
+
+
+  Retrieves all master/available services registered in the system. This
+  endpoint returns a complete list of services that can be associated with
+  hostels or used for configuration purposes.
+
+
+  ---
+
+
+  ### Authentication
+
+
+  This request requires a **Bearer Token** for authorization.
+
+
+  | Type | Token |
+
+  | --- | --- |
+
+  | Bearer Token | `{{user_token}}` |
+
+
+  The token is automatically included in the `Authorization` header:
+
+
+  ```
+
+  Authorization: Bearer {{user_token}}
+
+   ```
+
+  ---
+
+
+  ### Variables Used
+
+
+  | Variable | Description |
+
+  | --- | --- |
+
+  | `{{base_url}}` | The base URL of the API server (e.g.,
+  `http://localhost:8080`) |
+
+  | `{{user_token}}` | The authenticated user's JWT/Bearer token used for
+  authorization |
+
+
+  ---
+
+
+  ### Request Details
+
+
+  | Property | Value |
+
+  | --- | --- |
+
+  | Method | `GET` |
+
+  | URL | `{{base_url}}/api/services/all` |
+
+  | Query Parameters | None |
+
+  | Request Body | None |
+
+
+  ---
+
+
+  ### Expected Response
+
+
+  | Assertion | Expected Value |
+
+  | --- | --- |
+
+  | Status Code | `200 OK` |
+
+  | Response Time | `< 2000ms` |
+
+
+  A successful response returns a `200 OK` status with a JSON array or object
+  containing all available master services.
 url: "{{base_url}}/api/services/all"
 method: GET
 auth:
@@ -7,9 +94,7 @@ auth:
     token: "{{user_token}}"
 scripts:
   - type: afterResponse
-    code: "let jsonData = pm.response.json();\r
-
-      \r
+    code: "\r
 
       // 1. Status code = 200\r
 
@@ -26,6 +111,44 @@ scripts:
       pm.test(\"Response time is less than 2000ms\", function () {\r
 
       \    pm.expect(pm.response.responseTime).to.be.below(2000);\r
+
+      });\r
+
+      \r
+
+      // 3. Check user is forbidden when not authorized.\r
+
+      pm.test(\"User is forbidden\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(403);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User is not forbidden\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      \r
+
+      // 4. Check unautorized response when no token is provided.\r
+
+      pm.test(\"Unauthorized when no token\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(401);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User has token\");\r
+
+      \    }\r
 
       });"
     language: text/javascript

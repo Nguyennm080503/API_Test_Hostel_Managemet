@@ -1,0 +1,233 @@
+$kind: http-request
+description: >-
+  ## all_hostel_services
+
+
+  Retrieves all services associated with a specific hostel. This endpoint
+  returns a complete list of services linked to the given hostel, identified by
+  its `hostelId`.
+
+
+  ---
+
+
+  ### Authentication
+
+
+  This request requires a **Bearer Token** for authorization.
+
+
+  | Type | Token |
+
+  | --- | --- |
+
+  | Bearer Token | `{{user_token}}` |
+
+
+  The token is automatically included in the `Authorization` header:
+
+
+  ```
+
+  Authorization: Bearer {{user_token}}
+
+   ```
+
+  ---
+
+
+  ### Variables Used
+
+
+  | Variable | Description |
+
+  | --- | --- |
+
+  | `{{base_url}}` | The base URL of the API server (e.g.,
+  `http://localhost:8080`) |
+
+  | `{{user_token}}` | The authenticated user's JWT/Bearer token used for
+  authorization |
+
+
+  ---
+
+
+  ### Request Details
+
+
+  | Property | Value |
+
+  | --- | --- |
+
+  | Method | `GET` |
+
+  | URL | `{{base_url}}/api/services/hostel/all` |
+
+  | Query Parameters | `hostelId` (optional) — The ID of the hostel whose
+  services are to be retrieved |
+
+  | Request Body | None |
+
+
+  ---
+
+
+  ### Query Parameters
+
+
+  | Parameter | Type | Required | Description |
+
+  | --- | --- | --- | --- |
+
+  | `hostelId` | number | Optional | The numeric ID of the hostel to retrieve
+  services for |
+
+
+  ---
+
+
+  ### Expected Response
+
+
+  | Assertion | Expected Value |
+
+  | --- | --- |
+
+  | Status Code | `200 OK` |
+
+  | Response Time | `< 2000ms` |
+
+
+  A successful response returns a `200 OK` status with a JSON array or object
+  containing all services associated with the specified hostel.
+
+
+  ---
+
+
+  ### Test Cases
+
+
+  | # | Test Name | Description |
+
+  | --- | --- | --- |
+
+  | 1 | Load list of hostel service successfully | Verifies the response status
+  code is `200` |
+
+  | 2 | Response time is less than 2000ms | Verifies the response time is below
+  `2000ms` |
+
+  | 3 | Hostel does not exist | Checks that the response includes the message
+  `"Hostel does not exist"` |
+
+  | 4 | ID hostel must a number type | Checks that the response includes the
+  message `"ID hostel must a number type"` |
+url: "{{base_url}}/api/services/hostel/all"
+method: GET
+queryParams:
+  - key: hostelId
+    value: ""
+    disabled: true
+auth:
+  type: bearer
+  credentials:
+    token: "{{user_token}}"
+scripts:
+  - type: afterResponse
+    code: "let responseText = pm.response.text();\r
+
+      \r
+
+      let response = null;\r
+
+      try {\r
+
+      \    response = pm.response.json();\r
+
+      } catch (e) {\r
+
+      \    response = responseText;\r
+
+      }\r
+
+      \r
+
+      // 1. Status code = 200\r
+
+      pm.test(\"Load list of hostel service successfully\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      // 2. Response time < 2000ms\r
+
+      pm.test(\"Response time is less than 2000ms\", function () {\r
+
+      \    pm.expect(pm.response.responseTime).to.be.below(2000);\r
+
+      });\r
+
+      \r
+
+      // 3. Check hostel does not exists\r
+
+      pm.test(\"Hostel does not exist\", function () {\r
+
+      \    pm.expect(response).to.include(\"Hostel does not exist\");\r
+
+      })\r
+
+      \r
+
+      // 4. Check format hostelID\r
+
+      pm.test(\"ID hostel must a number type\", function () {\r
+
+      \    pm.expect(response).to.include(\"ID hostel must a number type\");\r
+
+      })\r
+
+      \r
+
+      // 5. Check user is forbidden when not authorized.\r
+
+      pm.test(\"User is forbidden\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(403);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User is not forbidden\");\r
+
+      \    }\r
+
+      });\r
+
+      \r
+
+      \r
+
+      // 6. Check unautorized response when no token is provided.\r
+
+      pm.test(\"Unauthorized when no token\", function () {\r
+
+      \    try{\r
+
+      \        pm.response.to.have.status(401);\r
+
+      \    }catch{\r
+
+      \        throw new Error(\"User has token\");\r
+
+      \    }\r
+
+      });"
+    language: text/javascript
+order: 1000

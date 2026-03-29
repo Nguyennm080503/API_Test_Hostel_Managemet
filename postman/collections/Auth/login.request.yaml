@@ -101,7 +101,7 @@ description: >-
   | `role` | Environment | The returned `role` value (as string) |
 
 
-  These variables are then available via `{{user_token}}`, `{{user_id}}`, and
+  These variables are then available via `{user_token}`, `{{user_id}}`, and
   `{{role}}` in subsequent requests.
 url: "{{base_url}}/api/accounts/auth/login"
 method: POST

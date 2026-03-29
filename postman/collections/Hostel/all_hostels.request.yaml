@@ -1,4 +1,92 @@
 $kind: http-request
+description: >-
+  ## Get All Hostels (Customer)
+
+
+  Retrieves a list of all hostels available to the authenticated customer.
+
+
+  ### Authentication
+
+
+  This request requires a **Bearer Token** passed via the `Authorization`
+  header. The token is sourced from the `{{user_token}}` variable.
+
+
+  ```
+
+  Authorization: Bearer {{user_token}}
+
+   ```
+
+  ### Request
+
+
+  | Property | Value |
+
+  | --- | --- |
+
+  | Method | GET |
+
+  | URL | `{{base_url}}/api/hostels/customer/all` |
+
+
+  ### Variables
+
+
+  | Variable | Description |
+
+  | --- | --- |
+
+  | `{{base_url}}` | The base URL of the API server |
+
+  | `{{user_token}}` | Bearer token for the authenticated user |
+
+
+  ### Responses
+
+
+  | Status Code | Description |
+
+  | --- | --- |
+
+  | `200 OK` | Successfully returns a list of hostels for the customer |
+
+  | `401 Unauthorized` | No token was provided in the request |
+
+  | `403 Forbidden` | The user does not have permission to access this resource
+  |
+
+  | `500 Internal Server Error` | An unexpected error occurred on the server |
+
+
+  ### Test Coverage
+
+
+  This request includes the following automated tests:
+
+
+  1. **Return status code 200** – Verifies the response status is `200`.
+      
+  2. **Response time is less than 2000ms** – Ensures the API responds within 2
+  seconds.
+      
+  3. **User is forbidden** – Checks that a `403` status is returned when the
+  user is not authorized.
+      
+  4. **Unauthorized when no token** – Checks that a `401` status is returned
+  when no token is provided.
+      
+  5. **Check user has more than a hostel** – Validates that the response array
+  contains more than one hostel.
+      
+  6. **Internal server error** – Checks for a `500` status in error scenarios.
+      
+  7. **Account does not have any hostel** – Validates that the response array is
+  empty when the account has no hostels.
+      
+  8. **User is member get hostel** – Verifies that the authenticated user has
+  the `member` role (role = 2).
 url: "{{base_url}}/api/hostels/customer/all"
 method: GET
 auth:

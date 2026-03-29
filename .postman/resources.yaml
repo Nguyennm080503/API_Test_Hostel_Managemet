@@ -5,6 +5,9 @@ workspace:
 # Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
 cloudResources:
   collections:
+    ..\postman\collections\Room: 38705930-2b2b48aa-2718-4893-9cbf-484c9e87a7b3
+    ..\postman\collections\Service hostel: 38705930-5b775092-6f5b-4528-949a-65b7c94f350c
+    ..\postman\collections\Service room: 38705930-e397ac14-099f-4ed0-ab0a-bf30ef396940
     ..\postman\collections\Account: 38705930-161009a4-69fe-4bfb-9bf5-29c40b2f9b87
     ..\postman\collections\Auth: 38705930-3658b794-4efd-46d3-b8d4-9fd122090df7
     ..\postman\collections\Hostel: 38705930-5ef9275d-e485-440a-bb24-b7daec9bd2f3
@@ -15,6 +18,8 @@ cloudResources:
     ..\postman\environments\user_config.environment.yaml: 38705930-59f60fb3-dc3e-43f9-909d-dc8a5ddac9d3
     ..\postman\environments\save_hostel_id.environment.yaml: 38705930-63348cf1-c439-42da-ac9b-8f5510da85c2
     ..\postman\environments\save_hostel.environment.yaml: 38705930-b37d0a70-3c5d-441a-8320-a09739acc352
+    ..\postman\environments\save_service_hostel.environment.yaml: 38705930-285fb11f-4f5e-4b35-b916-0a57bcf07b50
+    ..\postman\environments\save_service_room.environment.yaml: 38705930-1672c3e0-6f58-4a14-966c-685f9b3cdb75
 
 # All resources in the `postman/` folder are automatically registered in Local View.
 # Point to additional files outside the `postman/` folder to register them individually. Example:
